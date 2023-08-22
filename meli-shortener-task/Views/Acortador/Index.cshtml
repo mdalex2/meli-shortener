@@ -1,0 +1,218 @@
+﻿@model IEnumerable<meli.Models.UrlConfigClass>
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Index";
+}
+
+<!--
+<h1>Inicio</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+-->
+<div class="row col-md-12" style="justify-content: flex-end">
+    <a id="btn_nuevo" href="#" class="btn btn-primary"><span class="glyphicon glyphicon-file"></span>&nbsp;Nuevo</a> &nbsp;
+    <a class="btn btn-success" asp-action="Excel" ><i class="fas fa-file-excel"></i>  Excel</a>
+    <button type="button" value="Regresar" id="btn_regresar" class="btn btn-primary" onclick="javascript: history.go(-1);" title="Regresar">Volver<span class="glyphicon glyphicon-arrow-left"></span></button>
+</div>
+    <table class="table table-responsive-xl" id="tabla1_index">
+        <thead>
+            <tr>
+                <th">
+                    <p style="text-wrap:inherit;word-wrap: break-word!important;overflow:hidden;">@Html.DisplayNameFor(model => model.UrlLarga)</p>
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UrlCorta)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaCreacion)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaExpira)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Habilitado)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NumVisitas)
+                </th>
+                <th colspan="3" style="text-align:center;">Options</th>
+            </tr>
+        </thead>
+        <tbody id="tbl_body">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <p>@Html.DisplayFor(modelItem => item.UrlLarga)</p>
+                    </td>
+                    <td>
+
+                    <!--@Html.DisplayFor(modelItem => item.UrlCorta)-->
+                    @Configuration.GetSection("HostName").Value@Html.DisplayFor(modelItem => item.UrlCorta)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FechaCreacion)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FechaExpira)
+                    </td>
+                    <td>
+                        @if ((item.Habilitado) == true)
+                        {
+                            <span>SI</span>
+                        }
+                        else
+                        {
+                            <span>NO</span>
+                        }
+                        <!--@Html.DisplayFor(modelItem => item.Habilitado)-->
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NumVisitas)
+                    </td>
+
+                    <!--<td style="text-align:right;"><a id="@item.ID" class="btn btn-primary btn_edit" href="#"><span class="glyphicon glyphicon-edit" title="Editar">Edit</span></a></td>-->
+                    <td style="text-align:right;"><a id="@item.ID" class="btn btn-danger btn_elim" title="Eliminar"><span class="glyphicon glyphicon-trash" title="Eliminar">Elim</span></a></td>
+                    <!--
+
+                    <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    </td>
+                    -->
+
+                </tr>
+            }
+        </tbody>
+    </table>
+    <!-- Modal Eliminar -->
+    <div class="modal fade" id="modals" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Confirme la eliminación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal_body">
+                    ¿Está seguro que desea eliminar el registro Nº <span id="id_prod"></span>?
+
+                </div>
+                <div class="alert alert-danger" id="divMsgErr" hidden>
+                    <strong>Error!</strong> Indicates a dangerous or potentially negative action.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn-confirm-elim-alum"><span class="glyphicon glyphicon-trash"></span>&nbsp;Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="ventana_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header" id="">
+                    <span id="ventana_modal_title">Notificación</span><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+
+                <div class="modal-body" id="ventana_modal_body">
+
+
+                </div>
+                <br />
+                <!--
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary btn_confirm_elim_alum"><span class="glyphicon glyphicon-save"></span>&nbsp;Guardar</button>
+                </div>
+                    -->
+            </div>
+        </div>
+    </div>
+    @section scripts
+{
+        <script>
+
+        // VER MODAL "NUEVO"
+        $(document).ready(function () {
+
+            $("#btn_nuevo").click(function () {
+                $("#ventana_modal_body").load("/Acortador/Create/", function () {
+                    $("#ventana_modal").modal("show");
+                    $("#ventana_modal_title").text("Acortar URL");
+                });
+            });
+
+            // modal al editar (mostrar)
+            $('#tabla1_index').on('click', '.btn_edit', function () {
+                $("#ventana_modal_body").load("/Acortador/Edit/" + this.id, function () {
+                    $("#ventana_modal_title").text("Modificar URL");
+                    $("#ventana_modal").modal("show");
+                });
+            });
+        });
+        //FIN VER MODAL NUEVO REGISTRO
+        $('#tabla1_index').on('click', '.btn_elim', function (id = this.id) {
+            //$(".btn_elim").on("click", function (id = this.id) {
+            id = this.id;
+            $("#id_prod").text(id);
+            $('#modals').modal("show", id = this.id);
+        });
+        /*
+        $(".btn-confirm-elim-alum").on("click", function () {
+            id = $("#id_prod").text();
+            if (id && id != '' && id != null && id != undefined)
+                window.location = "/Acortador/Eliminar/" + id;
+            else {
+                alert("No se recibió el id a eliminar");
+            }
+        });*/
+
+        $(".btn-confirm-elim-alum").on("click", function () {
+        //e.preventDefault();
+        id = $("#id_prod").text();
+        //data = $('#frm_nuevo').serializeArray();
+
+        $.ajax({
+            url: "@Url.Action("Eliminar", "Acortador")", // Url
+            data: { id: id},
+            type: "Delete"  // Verbo HTTP
+        })
+        // Se ejecuta si todo fue bien.
+            .done(function (result) {
+                debugger;
+            if (result.success) {
+                window.location = "/Acortador";
+                $("#modals").modal("hide");
+            }
+            else {
+                $("#divMsgErr").html("<strong>Error!</strong> Se produjo un error al realizar la consulta: " + result.message);
+                $('#divMsgErr').removeAttr('hidden');
+
+                console.log(result);
+            }
+        })
+        // Se ejecuta si se produjo un error.
+        .fail(function (xhr, status, error) {
+            $("#divMsgErr").html("<strong>Error!</strong> Se produjo un error al realizar la consulta.");
+            $('#divMsgErr').removeAttr('hidden');
+            console.log(error);
+        })
+        // Hacer algo siempre, haya sido exitosa o no.
+        .always(function (x) {
+            console.log(x);
+        });
+        });
+
+
+        </script>
+    }
