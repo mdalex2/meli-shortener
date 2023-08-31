@@ -33,10 +33,8 @@ namespace meli.Controllers
         public async Task<ActionResult> Index()
         {
             List<UrlConfigClass> lst = new List<UrlConfigClass>();
-            var Task = new Task(() => { 
-            using (_db)
-            {
-                lst =  (from d in _db.UrlConfigs.OrderByDescending(x => x.ID).Take(20)
+            
+                lst =  await  (from d in _db.UrlConfigs.OrderByDescending(x => x.ID).Take(20)
                     select new UrlConfigClass
                     {
                         ID = d.ID,
@@ -46,11 +44,8 @@ namespace meli.Controllers
                         Habilitado = d.Habilitado,
                         NumVisitas = d.NumVisitas,
                         FechaExpira = d.FechaExpira                           
-                    }).ToList();
-            }
-            });
-            Task.Start();
-            await Task;
+                    }).ToListAsync();
+            
             return View(lst);
         }
         public async Task<IActionResult> Excel()
